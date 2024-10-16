@@ -26,7 +26,7 @@ jobs:
         cpio git python-docutils gettext automake autopoint texinfo build-essential help2man \
         pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget \
         binutils bzip2 diff find flex gawk gcc-6+ getopt grep install libc-dev libz-dev \
-        make4.1+ perl python3.7+ rsync subversion unzip which
+        make perl python rsync subversion unzip which
     - name: Clone source code and get feeds
       env:
         TNAME: E8820S
