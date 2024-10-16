@@ -28,6 +28,8 @@ jobs:
         binutils bzip2 diff find flex gawk gcc-6+ getopt grep install libc-dev libz-dev \
         make4.1+ perl python3.7+ rsync subversion unzip which
     - name: Clone source code and get feeds
+      env:
+        TNAME: E8820S
       run: |
         git clone --depth=1 https://github.com/TwoOnefour/openwrt.git /opt/openwrt
         cd /opt/openwrt
@@ -38,9 +40,6 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
     - name: Build Firmware
-      env:
-        TNAME: ZTE-E8820S
-        KERNEL: 4.4
       run: |
         cd /opt/openwrt
         make V=1 -j$(nproc)
