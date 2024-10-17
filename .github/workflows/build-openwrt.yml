@@ -33,7 +33,7 @@ jobs:
       run: |
         git clone https://github.com/TwoOnefour/openwrt.git /opt/openwrt
         cd /opt/openwrt
-        git checkout openwrt-23.05
+        # git checkout openwrt-23.05
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         make download -j$(nproc)
@@ -42,11 +42,11 @@ jobs:
     - name: Build Firmware
       run: |
         cd /opt/openwrt
-        patch -p0001 < zte_8820s.patch
+        # patch -p0001 < zte_8820s.patch
         make V=1 -j$(nproc)
     - name : Upload packages
       uses: actions/upload-artifact@master
       if: always()
       with:
-        name: oppenwrt-packages
+        name: openwrt-packages
         path: /opt/openwrt/bin
