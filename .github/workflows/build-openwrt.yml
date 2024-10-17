@@ -1,0 +1,52 @@
+name: Build Openwrt
+
+on: 
+  release:
+    types: [published]
+  push:
+    tags:
+    - 'v*'
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install unzip libtool-bin curl cmake gperf gawk flex bison nano xxd fakeroot \
+        cpio git python3-docutils gettext automake autopoint texinfo build-essential help2man \
+        pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget \
+        binutils bzip2  diffutils flex gawk gcc grep libc-dev libz-dev patch \
+        make perl python3 rsync subversion unzip 
+    - name: Clone source code and get feeds
+      env:
+        TNAME: E8820S
+      run: |
+        git clone --depth=1 https://github.com/TwoOnefour/openwrt.git /opt/openwrt
+        cd /opt/openwrt
+        git checkout openwrt-23.05
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+    - name: Build Firmware
+      run: |
+        cd /opt/openwrt
+        patch -p0001 < zte_8820s.patch
+        make V=1 -j$(nproc)
+    - name : Upload packages
+      uses: actions/upload-artifact@master
+      if: always()
+      with:
+        name: openwrt-packages
+        path: /opt/openwrt/bin
