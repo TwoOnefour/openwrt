@@ -161,7 +161,10 @@
 			status = "okay";
 			label = "lan4";
 		};
-
+		port@4 {
+			status = "okay";
+			label = "wan";
+		};
 	};
 };
 
