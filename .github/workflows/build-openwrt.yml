@@ -31,7 +31,7 @@ jobs:
       env:
         TNAME: E8820S
       run: |
-        git clone --depth=1 https://github.com/TwoOnefour/openwrt.git /opt/openwrt
+        git clone https://github.com/TwoOnefour/openwrt.git /opt/openwrt
         cd /opt/openwrt
         git checkout openwrt-23.05
         ./scripts/feeds update -a
