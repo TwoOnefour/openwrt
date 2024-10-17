@@ -14,6 +14,10 @@
 		led-upgrade = &led_sys;
 	};
 
+	chosen {
+		bootargs = "console=ttyS0,115200";
+	};
+
 	leds {
 		compatible = "gpio-leds";
 
@@ -136,12 +140,6 @@
 	mac-address-increment = <1>;
 };
 
-&mdio {
-	ethphy4: ethernet-phy@4 {
-		reg = <4>;
-	};
-};
-
 &switch0 {
 	ports {
 		port@0 {
@@ -163,12 +161,13 @@
 			status = "okay";
 			label = "lan4";
 		};
+
 	};
 };
 
 &state_default {
 	gpio {
-		groups = "i2c", "jtag", "uart2", "uart3", "wdt";
+		groups = "i2c", "uart2", "uart3", "wdt";
 		function = "gpio";
 	};
 };
