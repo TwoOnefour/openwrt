@@ -1,23 +1,9 @@
-From d5c6afba37ebad3c9ea3d167fd14d9480991a05b Mon Sep 17 00:00:00 2001
-From: dsanke
-Date: Tue, 16 May 2023 00:00:53 +0800
-Subject: [PATCH] Add ZTE E8820S with MTK SDK partition support.
-
----
- target/linux/ramips/dts/mt7621_zte_e8820s.dts | 178 ++++++++++++++++++
- target/linux/ramips/image/mt7621.mk           |  19 ++
- .../mt7621/base-files/etc/board.d/01_leds     |   3 +
- .../mt7621/base-files/etc/board.d/02_network  |   3 +
- .../mt7621/base-files/lib/upgrade/platform.sh |   1 +
- 5 files changed, 204 insertions(+)
- create mode 100644 target/linux/ramips/dts/mt7621_zte_e8820s.dts
-
 diff --git a/target/linux/ramips/dts/mt7621_zte_e8820s.dts b/target/linux/ramips/dts/mt7621_zte_e8820s.dts
 new file mode 100644
-index 0000000..c6cdac5
+index 0000000000..a1ab314f28
 --- /dev/null
 +++ b/target/linux/ramips/dts/mt7621_zte_e8820s.dts
-@@ -0,0 +1,178 @@
+@@ -0,0 +1,180 @@
 +#include "mt7621.dtsi"
 +
 +#include <dt-bindings/gpio/gpio.h>
@@ -121,6 +107,8 @@ index 0000000..c6cdac5
 +
 +&pcie {
 +	status = "okay";
++	reset-gpios = <&gpio 19 GPIO_ACTIVE_LOW>,
++		      <&gpio 4 GPIO_ACTIVE_LOW>;
 +};
 +
 +&pcie0 {
@@ -197,12 +185,12 @@ index 0000000..c6cdac5
 +	};
 +};
 diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
-index ab0ff95..3770dd8 100644
+index 0b1d1b6dfc..c46bd6d0d7 100644
 --- a/target/linux/ramips/image/mt7621.mk
 +++ b/target/linux/ramips/image/mt7621.mk
-@@ -2270,6 +2270,25 @@ define Device/zio_freezio
+@@ -3038,6 +3038,25 @@ define Device/zyxel_lte3301-plus
  endef
- TARGET_DEVICES += zio_freezio
+ TARGET_DEVICES += zyxel_lte3301-plus
  
 +define Device/zte_e8820s
 +  $(Device/uimage-lzma-loader)
@@ -224,15 +212,15 @@ index ab0ff95..3770dd8 100644
 +TARGET_DEVICES += zte_e8820s
 +
  define Device/zyxel_nr7101
-   $(Device/dsa-migration)
-   BLOCKSIZE := 128k
+   $(Device/nand)
+   DEVICE_VENDOR := ZyXEL
 diff --git a/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds b/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
-index 5f1e126..c6eaafe 100644
+index a903969965..6622b90baf 100644
 --- a/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
 +++ b/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
-@@ -170,6 +170,9 @@ zbtlink,zbt-wg1608-16m)
- 	ucidef_set_led_netdev "lan4" "LAN4" "green:lan-4" "lan4"
- 	ucidef_set_led_netdev "wan" "WAN" "green:wan" "wan"
+@@ -261,6 +261,9 @@ z-router,zr-2660)
+ zyxel,lte3301-plus)
+ 	ucidef_set_led_netdev "internet" "internet" "white:internet" "wwan0"
  	;;
 +zte,e8820s)
 +	ucidef_set_led_netdev "internet" "internet" "white:sys" "wan"
@@ -241,12 +229,12 @@ index 5f1e126..c6eaafe 100644
  
  board_config_flush
 diff --git a/target/linux/ramips/mt7621/base-files/etc/board.d/02_network b/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
-index afd4a37..3597ac9 100644
+index 71e6f93862..b7a5e85d40 100644
 --- a/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
 +++ b/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
-@@ -40,6 +40,9 @@ ramips_setup_interfaces()
- 	xiaomi,redmi-router-ac2100)
- 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
+@@ -60,6 +60,9 @@ ramips_setup_interfaces()
+ 	zyxel,nwa55axe)
+ 		ucidef_set_interface_lan "lan"
  		;;
 +	zte,e8820s)
 +		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
@@ -255,17 +243,14 @@ index afd4a37..3597ac9 100644
  	humax,e10|\
  	wavlink,ws-wn572hp3-4g|\
 diff --git a/target/linux/ramips/mt7621/base-files/lib/upgrade/platform.sh b/target/linux/ramips/mt7621/base-files/lib/upgrade/platform.sh
-index 4a6706e..6f13c4e 100755
+index 60dba1bdec..74b51dab7f 100755
 --- a/target/linux/ramips/mt7621/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ramips/mt7621/base-files/lib/upgrade/platform.sh
-@@ -96,6 +96,7 @@ platform_do_upgrade() {
+@@ -119,6 +119,7 @@ platform_do_upgrade() {
  	xiaomi,mi-router-cr6606|\
  	xiaomi,mi-router-cr6608|\
  	xiaomi,mi-router-cr6609|\
 +	zte,e8820s|\
  	xiaomi,redmi-router-ac2100|\
+ 	z-router,zr-2660|\
  	zyxel,nwa50ax|\
- 	zyxel,nwa55axe)
--- 
-2.40.1
-
