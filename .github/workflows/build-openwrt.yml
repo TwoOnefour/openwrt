@@ -23,16 +23,17 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get -y install unzip libtool-bin curl cmake gperf gawk flex bison nano xxd fakeroot \
-        cpio git python-docutils gettext automake autopoint texinfo build-essential help2man \
+        cpio git python3-docutils gettext automake autopoint texinfo build-essential help2man \
         pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget \
-        binutils bzip2  diffutils flex gawk gcc  grep libc-dev libz-dev \
-        make perl python rsync subversion unzip 
+        binutils bzip2  diffutils flex gawk gcc grep libc-dev libz-dev patch \
+        make perl python3 rsync subversion unzip 
     - name: Clone source code and get feeds
       env:
         TNAME: E8820S
       run: |
         git clone --depth=1 https://github.com/TwoOnefour/openwrt.git /opt/openwrt
         cd /opt/openwrt
+        git checkout openwrt-23.05
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         cp ./config/$TNAME.config .config
@@ -42,10 +43,11 @@ jobs:
     - name: Build Firmware
       run: |
         cd /opt/openwrt
+        patch -p0001 < zte_8820s.patch
         make V=1 -j$(nproc)
     - name : Upload packages
       uses: actions/upload-artifact@master
       if: always()
       with:
-        name: openwrt-packages
+        name: Padavan-packages
         path: /opt/openwrt/bin
