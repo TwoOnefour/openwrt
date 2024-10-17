@@ -36,8 +36,7 @@ jobs:
         git checkout openwrt-23.05
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        cp ./config/$TNAME.config .config
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
     - name: Build Firmware
@@ -49,5 +48,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: always()
       with:
-        name: Padavan-packages
+        name: oppenwrt-packages
         path: /opt/openwrt/bin
