@@ -47,5 +47,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: always()
       with:
-        name: Padavan-packages
+        name: openwrt-packages
         path: /opt/openwrt/bin
