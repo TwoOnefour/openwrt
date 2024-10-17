@@ -1,118 +1,188 @@
-/dts-v1/;
-
 #include "mt7621.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
-#include "mt7621-raeth-gmac2.dtsi"
-#include "mt7621-pinctrl-default-gpio.dtsi"
 
 / {
-	compatible = "mediatek,mt7621-soc";
+	compatible = "zte,e8820s", "mediatek,mt7621-soc";
 	model = "ZTE E8820S";
 
-	chosen {
-		bootargs = "console=ttyS0,115200";
+	aliases {
+		led-boot = &led_sys;
+		led-failsafe = &led_sys;
+		led-running = &led_sys;
+		led-upgrade = &led_sys;
 	};
 
 	leds {
 		compatible = "gpio-leds";
-    
-    		sys_white {
-			label = "power";
-			gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+
+		led_sys: sys {
+			label = "white:sys";
+			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
 		};
+
 	};
-	
-	gpio-keys-polled {
-		compatible = "gpio-keys-polled";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		poll-interval = <20>;
+
+	keys {
+		compatible = "gpio-keys";
 
 		reset {
 			label = "reset";
-			gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
 		};
-		
+
 		wps {
 			label = "wps";
-			gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WPS_BUTTON>;
 		};
-		
+
 		wifi {
 			label = "wifi";
-			gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RFKILL>;
 		};
 	};
-	
-};
-
-&bch {
-	status = "okay";
 };
 
 &nand {
 	status = "okay";
 
-	flash@0 {
-		reg = <0>;
-		nand-ecc-mode = "hw";
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
 
-			partition@0 {
-				label = "Bootloader";
-				reg = <0x0 0x80000>; /* 512k */
-			};
-						
-			partition@80000 {
-				label = "Config";
-				reg = <0x80000 0x80000>; /* 512k */
-			};
+		partition@0 {
+			label = "u-boot";
+			reg = <0x0 0x80000>;
+			read-only;
+		};
 
-			partition@100000 {
-				label = "Factory";
-				reg = <0x100000 0x40000>; /* 256k */
-			};
+		partition@80000 {
+			label = "u-boot-env";
+			reg = <0x80000 0x80000>;
+			read-only;
+		};
 
-			partition@140000 {
-				label = "firmware";
-				reg = <0x140000 0x2000000>; /* 32M */
-			};
-			
-			partition@2140000 {
-				label = "Storage";
-				reg = <0x2140000 0x400000>; /* 4096K */
-			};
+		factory: partition@100000 {
+			label = "factory";
+			reg = <0x100000 0x40000>;
+			read-only;
+		};
 
-			partition@2540000 {
-				label = "RWFS";
-				reg = <0x2540000 0x5A40000>;
-			};
+		partition@140000 {
+			label = "kernel";
+			reg = <0x140000 0x400000>;
+		};
 
-			partition@all {
-				label = "ALL";
-				reg = <0x0 0x7f80000>;
-			};
+		partition@540000 {
+			label = "ubi";
+			reg = <0x540000 0x7A00000>;
 		};
 	};
 };
 
 &pcie {
 	status = "okay";
-	reset-gpios = <&gpio0 19 1>, <&gpio0 4 1>;
-	reset-gpio-names = "pcie0", "pcie1";
-
+	reset-gpios = <&gpio 19 GPIO_ACTIVE_LOW>,
+				  <&gpio 4 GPIO_ACTIVE_LOW>;
 };
 
-&xhci {
-	status = "okay";
+&pcie0 {
+	wifi@0,0 {
+		compatible = "mediatek,mt76";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x0000>;
+		nvmem-cells = <&macaddr_factory_e000>;
+		nvmem-cell-names = "mac-address";
+
+		led {
+			led-active-low;
+		};
+	};
 };
 
-&u3phy1 {
+&pcie1 {
+	wifi@0,0 {
+		compatible = "mediatek,mt76";
+		reg = <0x0000 0 0 0 0>;
+		mediatek,mtd-eeprom = <&factory 0x8000>;
+		nvmem-cells = <&macaddr_factory_e006>;
+		nvmem-cell-names = "mac-address";
+		ieee80211-freq-limit = <5000000 6000000>;
+
+		led {
+			led-sources = <2>;
+			led-active-low;
+		};
+	};
+};
+
+&gmac0 {
+	nvmem-cells = <&macaddr_factory_e000>;
+	nvmem-cell-names = "mac-address";
+};
+
+&gmac1 {
 	status = "okay";
+	label = "wan";
+	phy-handle = <&ethphy4>;
+
+	nvmem-cells = <&macaddr_factory_e000>;
+	nvmem-cell-names = "mac-address";
+	mac-address-increment = <1>;
+};
+
+&mdio {
+	ethphy4: ethernet-phy@4 {
+		reg = <4>;
+	};
+};
+
+&switch0 {
+	ports {
+		port@0 {
+			status = "okay";
+			label = "lan1";
+		};
+
+		port@1 {
+			status = "okay";
+			label = "lan2";
+		};
+
+		port@2 {
+			status = "okay";
+			label = "lan3";
+		};
+
+		port@3 {
+			status = "okay";
+			label = "lan4";
+		};
+	};
+};
+
+&state_default {
+	gpio {
+		groups = "i2c", "jtag", "uart2", "uart3", "wdt";
+		function = "gpio";
+	};
+};
+
+&factory {
+	compatible = "nvmem-cells";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	macaddr_factory_e000: macaddr@e000 {
+		reg = <0xe000 0x6>;
+	};
+
+	macaddr_factory_e006: macaddr@e006 {
+		reg = <0xe006 0x6>;
+	};
 };
