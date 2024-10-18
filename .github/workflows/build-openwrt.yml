@@ -37,13 +37,11 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
     - name: Build Firmware
       run: |
         cd /opt/openwrt
         # patch -p0001 < zte_8820s.patch
-        make V=1 -j$(nproc)
+        make V=s -j$(nproc)
     - name : Upload packages
       uses: actions/upload-artifact@master
       if: always()
