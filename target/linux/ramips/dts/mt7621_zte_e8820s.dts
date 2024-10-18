@@ -12,6 +12,7 @@
 		led-failsafe = &led_sys;
 		led-running = &led_sys;
 		led-upgrade = &led_sys;
+		label-mac-device = &gmac0;
 	};
 
 	chosen {
@@ -25,7 +26,10 @@
 			label = "white:sys";
 			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
 		};
-
+		led_power: power {
+			label = "white:power";
+			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	keys {
@@ -92,7 +96,7 @@
 &pcie {
 	status = "okay";
 	reset-gpios = <&gpio 19 GPIO_ACTIVE_LOW>,
-				  <&gpio 4 GPIO_ACTIVE_LOW>;
+		      <&gpio 4 GPIO_ACTIVE_LOW>;
 };
 
 &pcie0 {
@@ -110,14 +114,10 @@
 };
 
 &pcie1 {
-	wifi@0,0 {
-		compatible = "mediatek,mt76";
+	mt76@0,0 {
 		reg = <0x0000 0 0 0 0>;
 		mediatek,mtd-eeprom = <&factory 0x8000>;
-		nvmem-cells = <&macaddr_factory_e006>;
-		nvmem-cell-names = "mac-address";
 		ieee80211-freq-limit = <5000000 6000000>;
-
 		led {
 			led-sources = <2>;
 			led-active-low;
@@ -130,15 +130,6 @@
 	nvmem-cell-names = "mac-address";
 };
 
-&gmac1 {
-	status = "okay";
-	label = "wan";
-	phy-handle = <&ethphy4>;
-
-	nvmem-cells = <&macaddr_factory_e000>;
-	nvmem-cell-names = "mac-address";
-	mac-address-increment = <1>;
-};
 
 &switch0 {
 	ports {
@@ -177,14 +168,8 @@
 
 &factory {
 	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
 
 	macaddr_factory_e000: macaddr@e000 {
 		reg = <0xe000 0x6>;
-	};
-
-	macaddr_factory_e006: macaddr@e006 {
-		reg = <0xe006 0x6>;
 	};
 };
