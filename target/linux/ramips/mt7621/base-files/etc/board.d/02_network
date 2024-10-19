@@ -60,6 +60,9 @@ ramips_setup_interfaces()
 	zyxel,nwa55axe)
 		ucidef_set_interface_lan "lan"
 		;;
+	zte,e8820s)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
+		;;
 	asiarf,ap7621-001|\
 	humax,e10|\
 	wavlink,ws-wn572hp3-4g|\

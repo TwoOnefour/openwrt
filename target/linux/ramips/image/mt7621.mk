@@ -3038,6 +3038,25 @@ define Device/zyxel_lte3301-plus
 endef
 TARGET_DEVICES += zyxel_lte3301-plus
 
+define Device/zte_e8820s
+  $(Device/uimage-lzma-loader)
+  $(Device/dsa-migration)
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 4096k
+  UBINIZE_OPTS := -E 5
+  IMAGE_SIZE := 129280k
+  IMAGES += factory.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | \
+	check-size
+  DEVICE_VENDOR := ZTE
+  DEVICE_MODEL := E8820S
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt76x2 \
+	kmod-usb3
+endef
+TARGET_DEVICES += zte_e8820s
+
 define Device/zyxel_nr7101
   $(Device/nand)
   DEVICE_VENDOR := ZyXEL

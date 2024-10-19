@@ -261,6 +261,9 @@ z-router,zr-2660)
 zyxel,lte3301-plus)
 	ucidef_set_led_netdev "internet" "internet" "white:internet" "wwan0"
 	;;
+zte,e8820s)
+	ucidef_set_led_netdev "internet" "internet" "white:sys" "wan"
+	;;
 esac
 
 board_config_flush
