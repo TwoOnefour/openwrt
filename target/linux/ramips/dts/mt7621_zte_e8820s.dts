@@ -100,73 +100,68 @@
 
 &pcie {
 	status = "okay";
-	reset-gpios = <&gpio 19 GPIO_ACTIVE_LOW>,
-				  <&gpio 4 GPIO_ACTIVE_LOW>;
 };
 
-&pcie0 {
-	wifi@0,0 {
-		compatible = "mediatek,mt76";
-		reg = <0x0000 0 0 0 0>;
-		mediatek,mtd-eeprom = <&factory 0x0000>;
-		nvmem-cells = <&macaddr_factory_e000>;
-		nvmem-cell-names = "mac-address";
 
-		led {
-			led-active-low;
-		};
-	};
+&pcie0 {
+    mt76@0,0 {
+        reg = <0x0000 0 0 0 0>;
+        mediatek,mtd-eeprom = <&factory 0x0000>;
+
+        led {
+            led-active-low;
+        };
+
+    };
 };
 
 &pcie1 {
-	wifi@0,0 {
-		compatible = "mediatek,mt76";
-		reg = <0x0000 0 0 0 0>;
-		mediatek,mtd-eeprom = <&factory 0x8000>;
-		nvmem-cells = <&macaddr_factory_e006>;
-		nvmem-cell-names = "mac-address";
-		ieee80211-freq-limit = <5000000 6000000>;
+    mt76@0,0 {
+        reg = <0x0000 0 0 0 0>;
+        mediatek,mtd-eeprom = <&factory 0x8000>;
+        ieee80211-freq-limit = <5000000 6000000>;
 
-		led {
-			led-sources = <2>;
-			led-active-low;
-		};
-	};
+        led {
+            led-sources = <2>;
+            led-active-low;
+        };
+
+    };
 };
+
 
 &gmac0 {
-	nvmem-cells = <&macaddr_factory_e000>;
-	nvmem-cell-names = "mac-address";
+    mtd-mac-address = <&factory 0xe000>;
 };
 
-
 &switch0 {
-	ports {
-		port@0 {
-			status = "okay";
-			label = "lan1";
-		};
+    ports {
+        port@4 {
+            status = "okay";
+            label = "wan";
+            mtd-mac-address = <&factory 0xe006>;
+        };
 
-		port@1 {
-			status = "okay";
-			label = "lan2";
-		};
+        port@0 {
+            status = "okay";
+            label = "lan1";
+        };
 
-		port@2 {
-			status = "okay";
-			label = "lan3";
-		};
+        port@1 {
+            status = "okay";
+            label = "lan2";
+        };
 
-		port@3 {
-			status = "okay";
-			label = "lan4";
-		};
+        port@2 {
+            status = "okay";
+            label = "lan3";
+        };
 
-		port@4 {
-			status = "okay";
-			label = "wan";
-		};
-	};
+        port@3 {
+            status = "okay";
+            label = "lan4";
+        };
+    };
 };
 
 &state_default {
