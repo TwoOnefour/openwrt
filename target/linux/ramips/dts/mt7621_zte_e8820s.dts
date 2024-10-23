@@ -12,7 +12,6 @@
 		led-failsafe = &led_power;
 		led-running = &led_power;
 		led-upgrade = &led_power;
-		label-mac-device = &gmac0;
 	};
 
 	chosen {
@@ -188,5 +187,8 @@
 
 	macaddr_factory_e000: macaddr@e000 {
 		reg = <0xe000 0x6>;
+	};
+	macaddr_factory_e006: macaddr@e006 {
+		reg = <0xe006 0x6>;
 	};
 };
