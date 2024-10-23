@@ -136,7 +136,7 @@
 &gmac1 {
 	status = "okay";
 	label = "wan";
-	phy-handle = <&ethernet-phy@4>;
+	phy-handle = <&ethphy4>;
 
 	nvmem-cells = <&macaddr_factory_e000>;
 	nvmem-cell-names = "mac-address";
